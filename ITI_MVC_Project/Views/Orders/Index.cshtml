@@ -1,0 +1,29 @@
+@model OrderListVM
+@{ ViewData["Title"] = "My Orders"; }
+<h2>My Orders</h2>
+@if (!Model.Orders.Any())
+{
+    <div class="alert alert-info">You have no orders yet. <a asp-controller="Catalog" asp-action="Index">Start shopping</a></div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="table-dark">
+                <tr><th>Order #</th><th>Date</th><th>Total</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model.Orders)
+                {
+                    <tr>
+                        <td>#@o.Id</td>
+                        <td>@o.OrderDate.ToString("MMM dd, yyyy")</td>
+                        <td>$@o.TotalAmount.ToString("N2")</td>
+                        <td><span class="badge bg-primary">@o.Status</span></td>
+                        <td><a asp-action="Details" asp-route-id="@o.Id" class="btn btn-sm btn-outline-primary">Details</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
