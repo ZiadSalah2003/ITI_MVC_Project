@@ -11,13 +11,6 @@ namespace ITI_MVC_Project
 
 			var app = builder.Build();
 
-			// Seed roles and admin user
-			using (var scope = app.Services.CreateScope())
-			{
-				var services = scope.ServiceProvider;
-				await Data.DbSeeder.SeedAsync(services);
-			}
-
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
