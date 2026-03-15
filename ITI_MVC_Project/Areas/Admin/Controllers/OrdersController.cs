@@ -70,7 +70,6 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(int id, OrderStatus status)
         {
             var order = await _unitOfWork.Orders.GetByIdAsync(id);

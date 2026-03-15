@@ -34,7 +34,6 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         public IActionResult Create() => View(new AdminCategoryVM());
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminCategoryVM model)
         {
             if (!ModelState.IsValid) return View(model);
@@ -67,7 +66,6 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AdminCategoryVM model)
         {
             if (!ModelState.IsValid) return View(model);
@@ -94,7 +92,6 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var category = await _unitOfWork.Categories.GetByIdAsync(id);

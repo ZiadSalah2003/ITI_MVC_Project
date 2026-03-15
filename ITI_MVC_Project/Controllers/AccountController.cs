@@ -21,7 +21,6 @@ namespace ITI_MVC_Project.Controllers
         public IActionResult Register() => View();
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterVM model)
         {
             if (!ModelState.IsValid) return View(model);
@@ -56,7 +55,6 @@ namespace ITI_MVC_Project.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginVM model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -73,7 +71,6 @@ namespace ITI_MVC_Project.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();

@@ -1,7 +1,6 @@
 ﻿using ITI_MVC_Project.Data;
 using ITI_MVC_Project.Models.Entities;
 using ITI_MVC_Project.Repositories;
-using ITI_MVC_Project.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,11 +50,6 @@ namespace ITI_MVC_Project
 			// Repositories
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 			services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-			// Services
-			services.AddScoped<ICatalogService, CatalogService>();
-			services.AddScoped<ICartService, CartService>();
-			services.AddScoped<IOrderService, OrderService>();
 
 			return services;
 		}

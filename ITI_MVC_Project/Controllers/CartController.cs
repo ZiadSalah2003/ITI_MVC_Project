@@ -40,7 +40,6 @@ namespace ITI_MVC_Project.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(int productId, int quantity = 1)
         {
             var product = await _unitOfWork.Products.GetByIdAsync(productId);
@@ -75,7 +74,6 @@ namespace ITI_MVC_Project.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(int id, int quantity)
         {
             var item = await _unitOfWork.CartItems.GetByIdAsync(id);
@@ -96,7 +94,6 @@ namespace ITI_MVC_Project.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(int id)
         {
             var item = await _unitOfWork.CartItems.GetByIdAsync(id);

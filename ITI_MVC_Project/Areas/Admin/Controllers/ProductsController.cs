@@ -47,7 +47,6 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminProductVM model)
         {
             if (!ModelState.IsValid)
@@ -95,7 +94,6 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AdminProductVM model)
         {
             if (!ModelState.IsValid)
@@ -145,7 +143,6 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var product = await _unitOfWork.Products.GetByIdAsync(id);

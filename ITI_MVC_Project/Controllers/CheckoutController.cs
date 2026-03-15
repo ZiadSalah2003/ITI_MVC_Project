@@ -48,7 +48,6 @@ namespace ITI_MVC_Project.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(CheckoutVM model)
         {
             var cartItems = await _unitOfWork.CartItems.GetQueryable()
