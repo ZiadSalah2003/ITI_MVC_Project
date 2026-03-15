@@ -14,7 +14,7 @@ namespace ITI_MVC_Project.Services
             const int pageSize = 8;
             var query = _unitOfWork.Products.GetQueryable()
                 .Include(p => p.Category)
-                .Where(p => p.IsActive);
+                .Where(p => p.IsActive && !p.IsDeleted);
 
             if (categoryId.HasValue)
                 query = query.Where(p => p.CategoryId == categoryId.Value);
@@ -44,7 +44,9 @@ namespace ITI_MVC_Project.Services
                     ImageUrl = p.ImageUrl,
                     CategoryName = p.Category?.Name ?? ""
                 }),
-                Categories = (await _unitOfWork.Categories.GetAllAsync()).ToList(),
+                Categories = await _unitOfWork.Categories.GetQueryable()
+                    .Where(c => !c.IsDeleted)
+                    .ToListAsync(),
                 SelectedCategoryId = categoryId,
                 SearchTerm = search,
                 SortBy = sortBy,
@@ -61,7 +63,7 @@ namespace ITI_MVC_Project.Services
         {
             var product = await _unitOfWork.Products.GetQueryable()
                 .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => p.Id == id && p.IsActive);
+                .FirstOrDefaultAsync(p => p.Id == id && p.IsActive && !p.IsDeleted);
 
             if (product == null) return null;
 

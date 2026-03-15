@@ -19,6 +19,8 @@ namespace ITI_MVC_Project.Models.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        public bool IsDeleted { get; set; } = false;
+
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
         public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     }

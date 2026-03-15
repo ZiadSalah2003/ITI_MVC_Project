@@ -15,6 +15,7 @@ namespace ITI_MVC_Project.Services.Admin
             var orders = await _unitOfWork.Orders.GetQueryable()
                 .Include(o => o.User)
                 .Include(o => o.OrderItems)
+                .Where(o => !o.IsDeleted)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
@@ -38,7 +39,7 @@ namespace ITI_MVC_Project.Services.Admin
             var order = await _unitOfWork.Orders.GetQueryable()
                 .Include(o => o.User)
                 .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
-                .FirstOrDefaultAsync(o => o.Id == id);
+                .FirstOrDefaultAsync(o => o.Id == id && !o.IsDeleted);
 
             if (order == null) return null;
 

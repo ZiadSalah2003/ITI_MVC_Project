@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ITI_MVC_Project.Models.Entities
 {
-    public class Category
+    public class Category : BaseEntity
     {
         public int Id { get; set; }
 

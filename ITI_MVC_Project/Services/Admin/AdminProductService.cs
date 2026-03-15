@@ -22,6 +22,7 @@ namespace ITI_MVC_Project.Services.Admin
         {
             var products = await _unitOfWork.Products.GetQueryable()
                 .Include(p => p.Category)
+                .Where(p => !p.IsDeleted)
                 .OrderBy(p => p.Name)
                 .ToListAsync();
 
@@ -43,7 +44,7 @@ namespace ITI_MVC_Project.Services.Admin
         {
             var product = await _unitOfWork.Products.GetQueryable()
                 .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
 
             if (product == null) return null;
 
@@ -57,7 +58,9 @@ namespace ITI_MVC_Project.Services.Admin
                 ImageUrl = product.ImageUrl,
                 IsActive = product.IsActive,
                 CategoryId = product.CategoryId,
-                Categories = await _unitOfWork.Categories.GetAllAsync()
+                Categories = await _unitOfWork.Categories.GetQueryable()
+                    .Where(c => !c.IsDeleted)
+                    .ToListAsync()
             };
         }
 
@@ -65,7 +68,9 @@ namespace ITI_MVC_Project.Services.Admin
         {
             return new AdminProductVM
             {
-                Categories = await _unitOfWork.Categories.GetAllAsync()
+                Categories = await _unitOfWork.Categories.GetQueryable()
+                    .Where(c => !c.IsDeleted)
+                    .ToListAsync()
             };
         }
 
@@ -118,12 +123,15 @@ namespace ITI_MVC_Project.Services.Admin
             var product = await _unitOfWork.Products.GetByIdAsync(id);
             if (product == null) return false;
 
-            if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                _fileService.DeleteFile(product.ImageUrl, ImageSubfolder);
-
-            _unitOfWork.Products.Delete(product);
+            product.IsDeleted = true;
+            _unitOfWork.Products.Update(product);
             await _unitOfWork.SaveChangesAsync();
             return true;
+        }
+        public async Task<bool> NameExistsAsync(string name, int? excludeId = null)
+        {
+            return await _unitOfWork.Products.AnyAsync(
+                p => p.Name == name && !p.IsDeleted && (excludeId == null || p.Id != excludeId));
         }
     }
 }

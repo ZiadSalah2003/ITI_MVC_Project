@@ -10,5 +10,6 @@ namespace ITI_MVC_Project.Services.Admin
         Task CreateAsync(AdminProductVM model);
         Task<bool> UpdateAsync(AdminProductVM model);
         Task<bool> DeleteAsync(int id);
+        Task<bool> NameExistsAsync(string name, int? excludeId = null);
     }
 }

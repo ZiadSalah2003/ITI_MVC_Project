@@ -35,6 +35,14 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
                 return View(model);
             }
 
+            if (await _productService.NameExistsAsync(model.Name))
+            {
+                ModelState.AddModelError(nameof(model.Name), "A product with this name already exists.");
+                var form = await _productService.GetCreateFormAsync();
+                model.Categories = form.Categories;
+                return View(model);
+            }
+
             await _productService.CreateAsync(model);
             TempData["Success"] = "Product created.";
             return RedirectToAction(nameof(Index));
@@ -53,6 +61,14 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
+                var existing = await _productService.GetByIdAsync(model.Id);
+                model.Categories = existing?.Categories;
+                return View(model);
+            }
+
+            if (await _productService.NameExistsAsync(model.Name, model.Id))
+            {
+                ModelState.AddModelError(nameof(model.Name), "A product with this name already exists.");
                 var existing = await _productService.GetByIdAsync(model.Id);
                 model.Categories = existing?.Categories;
                 return View(model);

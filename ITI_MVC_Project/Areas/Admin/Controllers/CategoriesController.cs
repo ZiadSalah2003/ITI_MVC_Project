@@ -26,6 +26,12 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
+            if (await _categoryService.NameExistsAsync(model.Name))
+            {
+                ModelState.AddModelError(nameof(model.Name), "A category with this name already exists.");
+                return View(model);
+            }
+
             await _categoryService.CreateAsync(model);
             TempData["Success"] = "Category created.";
             return RedirectToAction(nameof(Index));
@@ -43,6 +49,12 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(AdminCategoryVM model)
         {
             if (!ModelState.IsValid) return View(model);
+
+            if (await _categoryService.NameExistsAsync(model.Name, model.Id))
+            {
+                ModelState.AddModelError(nameof(model.Name), "A category with this name already exists.");
+                return View(model);
+            }
 
             var updated = await _categoryService.UpdateAsync(model);
             if (!updated) return NotFound();
@@ -63,7 +75,14 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var deleted = await _categoryService.DeleteAsync(id);
-            if (!deleted) return NotFound();
+            if (!deleted)
+            {
+                var vm = await _categoryService.GetByIdAsync(id);
+                if (vm == null) return NotFound();
+
+                ModelState.AddModelError("", "Cannot delete this category because it contains products. Please remove or reassign the products first.");
+                return View(vm);
+            }
 
             TempData["Success"] = "Category deleted.";
             return RedirectToAction(nameof(Index));

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ITI_MVC_Project.Models.Entities
 {
-    public class CartItem
+    public class CartItem : BaseEntity
     {
         public int Id { get; set; }
 

@@ -12,7 +12,7 @@ namespace ITI_MVC_Project.Services
         public async Task<OrderListVM> GetUserOrdersAsync(string userId)
         {
             var orders = await _unitOfWork.Orders.GetQueryable()
-                .Where(o => o.UserId == userId)
+                .Where(o => o.UserId == userId && !o.IsDeleted)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
@@ -32,7 +32,7 @@ namespace ITI_MVC_Project.Services
         {
             var order = await _unitOfWork.Orders.GetQueryable()
                 .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
-                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId && !o.IsDeleted);
 
             if (order == null) return null;
 

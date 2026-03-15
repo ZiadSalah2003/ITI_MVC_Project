@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ITI_MVC_Project.Models.Entities
 {
-    public class OrderItem
+    public class OrderItem : BaseEntity
     {
         public int Id { get; set; }
         public int OrderId { get; set; }

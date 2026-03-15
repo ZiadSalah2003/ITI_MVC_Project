@@ -22,6 +22,7 @@ namespace ITI_MVC_Project.Services.Admin
         {
             var categories = await _unitOfWork.Categories.GetQueryable()
                 .Include(c => c.Products)
+                .Where(c => !c.IsDeleted)
                 .ToListAsync();
 
             return categories.Select(c => new AdminCategoryVM
@@ -35,7 +36,8 @@ namespace ITI_MVC_Project.Services.Admin
 
         public async Task<AdminCategoryVM?> GetByIdAsync(int id)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id);
+            var category = await _unitOfWork.Categories.GetQueryable()
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
             if (category == null) return null;
 
             return new AdminCategoryVM
@@ -73,19 +75,24 @@ namespace ITI_MVC_Project.Services.Admin
         {
             var category = await _unitOfWork.Categories.GetQueryable()
                 .Include(c => c.Products)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
 
             if (category == null) return false;
 
-            foreach (var product in category.Products)
-            {
-                if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                    _fileService.DeleteFile(product.ImageUrl, ImageSubfolder);
-            }
+            // Block deletion if category still contains active products
+            if (category.Products.Any(p => !p.IsDeleted))
+                return false;
 
-            _unitOfWork.Categories.Delete(category);
+            category.IsDeleted = true;
+            _unitOfWork.Categories.Update(category);
             await _unitOfWork.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> NameExistsAsync(string name, int? excludeId = null)
+        {
+            return await _unitOfWork.Categories.AnyAsync(
+                c => c.Name == name && !c.IsDeleted && (excludeId == null || c.Id != excludeId));
         }
     }
 }

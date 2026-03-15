@@ -14,7 +14,7 @@ namespace ITI_MVC_Project.Services
         {
             var cartItems = await _unitOfWork.CartItems.GetQueryable()
                 .Include(c => c.Product)
-                .Where(c => c.UserId == userId)
+                .Where(c => c.UserId == userId && !c.IsDeleted)
                 .ToListAsync();
 
             if (!cartItems.Any()) return null;
@@ -39,7 +39,7 @@ namespace ITI_MVC_Project.Services
         {
             var cartItems = await _unitOfWork.CartItems.GetQueryable()
                 .Include(c => c.Product)
-                .Where(c => c.UserId == userId)
+                .Where(c => c.UserId == userId && !c.IsDeleted)
                 .ToListAsync();
 
             if (!cartItems.Any())

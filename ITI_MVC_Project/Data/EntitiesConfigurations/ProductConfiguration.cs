@@ -21,6 +21,9 @@ namespace ITI_MVC_Project.Data.EntitiesConfigurations
             builder.Property(p => p.ImageUrl)
                 .HasMaxLength(500);
 
+            builder.HasIndex(p => p.Name)
+                .IsUnique();
+
             builder.HasOne(p => p.Category)
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId)

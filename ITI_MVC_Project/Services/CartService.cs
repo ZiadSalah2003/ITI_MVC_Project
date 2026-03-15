@@ -14,7 +14,7 @@ namespace ITI_MVC_Project.Services
         {
             var items = await _unitOfWork.CartItems.GetQueryable()
                 .Include(c => c.Product)
-                .Where(c => c.UserId == userId)
+                .Where(c => c.UserId == userId && !c.IsDeleted)
                 .ToListAsync();
 
             return new CartVM
@@ -67,7 +67,10 @@ namespace ITI_MVC_Project.Services
             if (item == null || item.UserId != userId) return;
 
             if (quantity <= 0)
-                _unitOfWork.CartItems.Delete(item);
+            {
+                item.IsDeleted = true;
+                _unitOfWork.CartItems.Update(item);
+            }
             else
             {
                 item.Quantity = quantity;
@@ -81,7 +84,8 @@ namespace ITI_MVC_Project.Services
             var item = await _unitOfWork.CartItems.GetByIdAsync(itemId);
             if (item != null && item.UserId == userId)
             {
-                _unitOfWork.CartItems.Delete(item);
+                item.IsDeleted = true;
+                _unitOfWork.CartItems.Update(item);
                 await _unitOfWork.SaveChangesAsync();
             }
         }
