@@ -16,7 +16,7 @@ namespace ITI_MVC_Project.Data.EntitiesConfigurations
             builder.HasOne(ci => ci.Product)
                 .WithMany()
                 .HasForeignKey(ci => ci.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasIndex(ci => new { ci.UserId, ci.ProductId })
                 .IsUnique();

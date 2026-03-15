@@ -7,8 +7,16 @@ namespace ITI_MVC_Project.Services.Admin
 {
     public class AdminCategoryService : IAdminCategoryService
     {
+        private const string ImageSubfolder = "products";
+
         private readonly IUnitOfWork _unitOfWork;
-        public AdminCategoryService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        private readonly IFileService _fileService;
+
+        public AdminCategoryService(IUnitOfWork unitOfWork, IFileService fileService)
+        {
+            _unitOfWork = unitOfWork;
+            _fileService = fileService;
+        }
 
         public async Task<IList<AdminCategoryVM>> GetAllAsync()
         {
@@ -63,8 +71,17 @@ namespace ITI_MVC_Project.Services.Admin
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id);
+            var category = await _unitOfWork.Categories.GetQueryable()
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
             if (category == null) return false;
+
+            foreach (var product in category.Products)
+            {
+                if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                    _fileService.DeleteFile(product.ImageUrl, ImageSubfolder);
+            }
 
             _unitOfWork.Categories.Delete(category);
             await _unitOfWork.SaveChangesAsync();
