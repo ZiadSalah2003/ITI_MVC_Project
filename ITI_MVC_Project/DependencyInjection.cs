@@ -3,6 +3,7 @@ using ITI_MVC_Project.Models.Entities;
 using ITI_MVC_Project.Repositories;
 using ITI_MVC_Project.Services;
 using ITI_MVC_Project.Services.Admin;
+using ITI_MVC_Project.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +29,7 @@ namespace ITI_MVC_Project
 				options.Password.RequireNonAlphanumeric = false;
 				options.Password.RequiredLength = 6;
 				options.User.RequireUniqueEmail = true;
+				options.SignIn.RequireConfirmedEmail = true;
 			})
 			.AddEntityFrameworkStores<ApplicationDbContext>()
 			.AddDefaultTokenProviders();
@@ -48,6 +50,10 @@ namespace ITI_MVC_Project
 				options.Cookie.HttpOnly = true;
 				options.Cookie.IsEssential = true;
 			});
+
+			// Email
+			services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
+			services.AddScoped<IEmailService, EmailService>();
 
 			// Repositories
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
