@@ -7,8 +7,16 @@ namespace ITI_MVC_Project.Services.Admin
 {
     public class AdminProductService : IAdminProductService
     {
+        private const string ImageSubfolder = "products";
+
         private readonly IUnitOfWork _unitOfWork;
-        public AdminProductService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        private readonly IFileService _fileService;
+
+        public AdminProductService(IUnitOfWork unitOfWork, IFileService fileService)
+        {
+            _unitOfWork = unitOfWork;
+            _fileService = fileService;
+        }
 
         public async Task<IList<AdminProductVM>> GetAllAsync()
         {
@@ -63,13 +71,17 @@ namespace ITI_MVC_Project.Services.Admin
 
         public async Task CreateAsync(AdminProductVM model)
         {
+            string? imageUrl = null;
+            if (model.ImageFile is not null)
+                imageUrl = await _fileService.SaveFileAsync(model.ImageFile, ImageSubfolder);
+
             var product = new Product
             {
                 Name = model.Name,
                 Description = model.Description,
                 Price = model.Price,
                 Stock = model.Stock,
-                ImageUrl = model.ImageUrl,
+                ImageUrl = imageUrl,
                 IsActive = model.IsActive,
                 CategoryId = model.CategoryId
             };
@@ -82,11 +94,18 @@ namespace ITI_MVC_Project.Services.Admin
             var product = await _unitOfWork.Products.GetByIdAsync(model.Id);
             if (product == null) return false;
 
+            if (model.ImageFile is not null)
+            {
+                if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                    _fileService.DeleteFile(product.ImageUrl, ImageSubfolder);
+
+                product.ImageUrl = await _fileService.SaveFileAsync(model.ImageFile, ImageSubfolder);
+            }
+
             product.Name = model.Name;
             product.Description = model.Description;
             product.Price = model.Price;
             product.Stock = model.Stock;
-            product.ImageUrl = model.ImageUrl;
             product.IsActive = model.IsActive;
             product.CategoryId = model.CategoryId;
             _unitOfWork.Products.Update(product);
@@ -98,6 +117,9 @@ namespace ITI_MVC_Project.Services.Admin
         {
             var product = await _unitOfWork.Products.GetByIdAsync(id);
             if (product == null) return false;
+
+            if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                _fileService.DeleteFile(product.ImageUrl, ImageSubfolder);
 
             _unitOfWork.Products.Delete(product);
             await _unitOfWork.SaveChangesAsync();

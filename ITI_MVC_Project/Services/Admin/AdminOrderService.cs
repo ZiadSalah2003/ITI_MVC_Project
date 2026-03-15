@@ -65,11 +65,28 @@ namespace ITI_MVC_Project.Services.Admin
 
         public async Task<bool> UpdateStatusAsync(int id, OrderStatus status)
         {
-            var order = await _unitOfWork.Orders.GetByIdAsync(id);
+            var order = await _unitOfWork.Orders.GetQueryable()
+                .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
             if (order == null) return false;
 
+            var previousStatus = order.Status;
             order.Status = status;
             _unitOfWork.Orders.Update(order);
+
+            if (status == OrderStatus.Cancelled && previousStatus != OrderStatus.Cancelled)
+            {
+                foreach (var item in order.OrderItems)
+                {
+                    if (item.Product != null)
+                    {
+                        item.Product.Stock += item.Quantity;
+                        _unitOfWork.Products.Update(item.Product);
+                    }
+                }
+            }
+
             await _unitOfWork.SaveChangesAsync();
             return true;
         }

@@ -54,6 +54,7 @@ namespace ITI_MVC_Project
 			services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 			// Services
+			services.AddScoped<IFileService, FileService>();
 			services.AddScoped<IAccountService, AccountService>();
 			services.AddScoped<ICartService, CartService>();
 			services.AddScoped<ICatalogService, CatalogService>();

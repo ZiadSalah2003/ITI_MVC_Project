@@ -1,4 +1,5 @@
 using ITI_MVC_Project.Models.Entities;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace ITI_MVC_Project.Models.ViewModels
@@ -19,7 +20,9 @@ namespace ITI_MVC_Project.Models.ViewModels
         [Required] [Range(0, int.MaxValue)]
         public int Stock { get; set; }
 
-        [MaxLength(500)] [Display(Name = "Image URL")]
+        [Display(Name = "Product Image")]
+        public IFormFile? ImageFile { get; set; }
+
         public string? ImageUrl { get; set; }
 
         [Display(Name = "Active")]
