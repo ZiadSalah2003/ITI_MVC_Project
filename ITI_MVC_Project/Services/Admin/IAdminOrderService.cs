@@ -7,6 +7,6 @@ namespace ITI_MVC_Project.Services.Admin
     {
         Task<AdminOrderListVM> GetAllOrdersAsync();
         Task<AdminOrderDetailsVM?> GetOrderDetailsAsync(int id);
-        Task<bool> UpdateStatusAsync(int id, OrderStatus status);
+        Task<(bool Success, string? Error)> UpdateStatusAsync(int id, OrderStatus status);
     }
 }

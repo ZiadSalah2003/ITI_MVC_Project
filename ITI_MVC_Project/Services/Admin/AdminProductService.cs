@@ -123,6 +123,28 @@ namespace ITI_MVC_Project.Services.Admin
             var product = await _unitOfWork.Products.GetByIdAsync(id);
             if (product == null) return false;
 
+            var pendingOrders = await _unitOfWork.Orders.GetQueryable()
+                .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
+                .Where(o => !o.IsDeleted
+                    && o.Status == OrderStatus.Pending
+                    && o.OrderItems.Any(oi => oi.ProductId == id))
+                .ToListAsync();
+
+            foreach (var order in pendingOrders)
+            {
+                foreach (var item in order.OrderItems)
+                {
+                    if (item.Product != null && item.ProductId != id)
+                    {
+                        item.Product.Stock += item.Quantity;
+                        _unitOfWork.Products.Update(item.Product);
+                    }
+                }
+
+                order.IsDeleted = true;
+                _unitOfWork.Orders.Update(order);
+            }
+
             product.IsDeleted = true;
             _unitOfWork.Products.Update(product);
             await _unitOfWork.SaveChangesAsync();

@@ -37,15 +37,31 @@
         <div class="card">
             <div class="card-body">
                 <h5>Update Status</h5>
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["Error"]</div>
+                }
                 <form asp-action="UpdateStatus" method="post">
                     <input type="hidden" name="id" value="@Model.Id" />
                     <select name="status" class="form-select mb-2">
                         @foreach (var s in Enum.GetValues<OrderStatus>())
                         {
-                            <option value="@s" selected="@(s == Model.Status)">@s</option>
+                            bool isTerminal = Model.Status == OrderStatus.Delivered || Model.Status == OrderStatus.Cancelled;
+                            bool isCancelInvalid = s == OrderStatus.Cancelled && Model.Status != OrderStatus.Pending;
+                            bool isBackward = s != OrderStatus.Cancelled && s < Model.Status;
+                            bool disabled = isTerminal || isCancelInvalid || isBackward;
+
+                            if (disabled)
+                            {
+                                <option value="@s" disabled>@s</option>
+                            }
+                            else
+                            {
+                                <option value="@s" selected="@(s == Model.Status)">@s</option>
+                            }
                         }
                     </select>
-                    <button type="submit" class="btn btn-primary w-100">Update</button>
+                    <button type="submit" class="btn btn-primary w-100" disabled="@(Model.Status == OrderStatus.Delivered || Model.Status == OrderStatus.Cancelled)">Update</button>
                 </form>
             </div>
         </div>

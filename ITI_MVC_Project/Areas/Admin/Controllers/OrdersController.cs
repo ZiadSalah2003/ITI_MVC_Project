@@ -28,8 +28,17 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateStatus(int id, OrderStatus status)
         {
-            var updated = await _orderService.UpdateStatusAsync(id, status);
-            if (!updated) return NotFound();
+            var (success, error) = await _orderService.UpdateStatusAsync(id, status);
+
+            if (!success)
+            {
+                if (error != null)
+                {
+                    TempData["Error"] = error;
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+                return NotFound();
+            }
 
             TempData["Success"] = "Order status updated.";
             return RedirectToAction(nameof(Details), new { id });

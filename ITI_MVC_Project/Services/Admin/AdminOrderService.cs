@@ -64,13 +64,25 @@ namespace ITI_MVC_Project.Services.Admin
             };
         }
 
-        public async Task<bool> UpdateStatusAsync(int id, OrderStatus status)
+        public async Task<(bool Success, string? Error)> UpdateStatusAsync(int id, OrderStatus status)
         {
             var order = await _unitOfWork.Orders.GetQueryable()
                 .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
-                .FirstOrDefaultAsync(o => o.Id == id);
+                .FirstOrDefaultAsync(o => o.Id == id && !o.IsDeleted);
 
-            if (order == null) return false;
+            if (order == null) return (false, null);
+
+            if (order.Status == OrderStatus.Delivered)
+                return (false, "Delivered orders cannot be changed.");
+
+            if (order.Status == OrderStatus.Cancelled)
+                return (false, "Cancelled orders cannot be changed.");
+
+            if (status == OrderStatus.Cancelled && order.Status != OrderStatus.Pending)
+                return (false, "Only pending orders can be cancelled.");
+
+            if (status != OrderStatus.Cancelled && status <= order.Status)
+                return (false, $"Cannot change status from '{order.Status}' to '{status}'. Status can only move forward.");
 
             var previousStatus = order.Status;
             order.Status = status;
@@ -89,7 +101,7 @@ namespace ITI_MVC_Project.Services.Admin
             }
 
             await _unitOfWork.SaveChangesAsync();
-            return true;
+            return (true, null);
         }
     }
 }
