@@ -80,7 +80,7 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
                 var vm = await _categoryService.GetByIdAsync(id);
                 if (vm == null) return NotFound();
 
-                ModelState.AddModelError("", "Cannot delete this category because it contains products. Please remove or reassign the products first.");
+                ModelState.AddModelError("", "Cannot delete this category because it contains products. Please remove the products first.");
                 return View(vm);
             }
 

@@ -16,7 +16,8 @@ namespace ITI_MVC_Project.Data.EntitiesConfigurations
                 .HasMaxLength(1000);
 
             builder.HasIndex(c => c.Name)
-                .IsUnique();
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
 
             builder.HasData(
                 new Category { Id = 1, Name = "Electronics", Description = "Electronic devices and gadgets", CreatedAt = new DateTime(2026, 3, 3, 1, 45, 26, 438, DateTimeKind.Utc).AddTicks(7004) },

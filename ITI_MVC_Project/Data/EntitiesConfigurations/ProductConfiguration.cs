@@ -22,7 +22,8 @@ namespace ITI_MVC_Project.Data.EntitiesConfigurations
                 .HasMaxLength(500);
 
             builder.HasIndex(p => p.Name)
-                .IsUnique();
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
 
             builder.HasOne(p => p.Category)
                 .WithMany(c => c.Products)
