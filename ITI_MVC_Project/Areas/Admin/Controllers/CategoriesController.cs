@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ITI_MVC_Project.Repositories;
-using ITI_MVC_Project.Models.Entities;
 using ITI_MVC_Project.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
+using ITI_MVC_Project.Services.Admin;
 
 namespace ITI_MVC_Project.Areas.Admin.Controllers
 {
@@ -11,22 +9,12 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
     [Authorize(Roles = "Admin")]
     public class CategoriesController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public CategoriesController(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        private readonly IAdminCategoryService _categoryService;
+        public CategoriesController(IAdminCategoryService categoryService) => _categoryService = categoryService;
 
         public async Task<IActionResult> Index()
         {
-            var categories = await _unitOfWork.Categories.GetQueryable()
-                .Include(c => c.Products)
-                .ToListAsync();
-
-            var vm = categories.Select(c => new AdminCategoryVM
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                ProductCount = c.Products?.Count ?? 0
-            }).ToList();
+            var vm = await _categoryService.GetAllAsync();
             return View(vm);
         }
 
@@ -38,14 +26,7 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var category = new Category
-            {
-                Name = model.Name,
-                Description = model.Description
-            };
-            await _unitOfWork.Categories.AddAsync(category);
-            await _unitOfWork.SaveChangesAsync();
-
+            await _categoryService.CreateAsync(model);
             TempData["Success"] = "Category created.";
             return RedirectToAction(nameof(Index));
         }
@@ -53,15 +34,8 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id);
-            if (category == null) return NotFound();
-
-            var vm = new AdminCategoryVM
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description
-            };
+            var vm = await _categoryService.GetByIdAsync(id);
+            if (vm == null) return NotFound();
             return View(vm);
         }
 
@@ -70,13 +44,8 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var category = await _unitOfWork.Categories.GetByIdAsync(model.Id);
-            if (category == null) return NotFound();
-
-            category.Name = model.Name;
-            category.Description = model.Description;
-            _unitOfWork.Categories.Update(category);
-            await _unitOfWork.SaveChangesAsync();
+            var updated = await _categoryService.UpdateAsync(model);
+            if (!updated) return NotFound();
 
             TempData["Success"] = "Category updated.";
             return RedirectToAction(nameof(Index));
@@ -85,20 +54,16 @@ namespace ITI_MVC_Project.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id);
-            if (category == null) return NotFound();
-
-            return View(new AdminCategoryVM { Id = category.Id, Name = category.Name, Description = category.Description });
+            var vm = await _categoryService.GetByIdAsync(id);
+            if (vm == null) return NotFound();
+            return View(vm);
         }
 
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id);
-            if (category == null) return NotFound();
-
-            _unitOfWork.Categories.Delete(category);
-            await _unitOfWork.SaveChangesAsync();
+            var deleted = await _categoryService.DeleteAsync(id);
+            if (!deleted) return NotFound();
 
             TempData["Success"] = "Category deleted.";
             return RedirectToAction(nameof(Index));

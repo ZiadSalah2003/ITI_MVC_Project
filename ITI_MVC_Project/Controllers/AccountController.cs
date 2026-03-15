@@ -1,20 +1,16 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using ITI_MVC_Project.Models.Entities;
 using ITI_MVC_Project.Models.ViewModels;
+using ITI_MVC_Project.Services;
 
 namespace ITI_MVC_Project.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IAccountService _accountService;
 
-        public AccountController(UserManager<ApplicationUser> userManager,
-                                  SignInManager<ApplicationUser> signInManager)
+        public AccountController(IAccountService accountService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _accountService = accountService;
         }
 
         [HttpGet]
@@ -25,21 +21,9 @@ namespace ITI_MVC_Project.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _accountService.RegisterAsync(model);
             if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, "Customer");
-                await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Index", "Catalog");
-            }
 
             foreach (var error in result.Errors)
                 ModelState.AddModelError(string.Empty, error.Description);
@@ -60,8 +44,7 @@ namespace ITI_MVC_Project.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid) return View(model);
 
-            var result = await _signInManager.PasswordSignInAsync(
-                model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+            var result = await _accountService.LoginAsync(model);
 
             if (result.Succeeded)
                 return LocalRedirect(returnUrl ?? Url.Action("Index", "Catalog")!);
@@ -73,7 +56,7 @@ namespace ITI_MVC_Project.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await _accountService.LogoutAsync();
             return RedirectToAction("Index", "Home");
         }
 

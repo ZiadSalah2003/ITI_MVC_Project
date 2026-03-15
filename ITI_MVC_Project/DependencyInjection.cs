@@ -1,6 +1,8 @@
 ﻿using ITI_MVC_Project.Data;
 using ITI_MVC_Project.Models.Entities;
 using ITI_MVC_Project.Repositories;
+using ITI_MVC_Project.Services;
+using ITI_MVC_Project.Services.Admin;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,6 +52,18 @@ namespace ITI_MVC_Project
 			// Repositories
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 			services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+			// Services
+			services.AddScoped<IAccountService, AccountService>();
+			services.AddScoped<ICartService, CartService>();
+			services.AddScoped<ICatalogService, CatalogService>();
+			services.AddScoped<ICheckoutService, CheckoutService>();
+			services.AddScoped<IOrderService, OrderService>();
+
+			// Admin Services
+			services.AddScoped<IAdminCategoryService, AdminCategoryService>();
+			services.AddScoped<IAdminProductService, AdminProductService>();
+			services.AddScoped<IAdminOrderService, AdminOrderService>();
 
 			return services;
 		}
