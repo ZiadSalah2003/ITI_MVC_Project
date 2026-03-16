@@ -17,6 +17,12 @@ namespace ITI_MVC_Project.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            if (User.IsInRole(Consts.DefaultRoles.Admin))
+            {
+                TempData["Error"] = "Admins cannot make orders.";
+                return RedirectToAction("Index", "Home");
+            }
+
             var vm = await _checkoutService.GetCheckoutViewAsync(UserId);
             if (vm == null)
             {
@@ -29,6 +35,12 @@ namespace ITI_MVC_Project.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(CheckoutVM model)
         {
+            if (User.IsInRole(Consts.DefaultRoles.Admin))
+            {
+                TempData["Error"] = "Admins cannot make orders.";
+                return RedirectToAction("Index", "Home");
+            }
+
             if (!ModelState.IsValid)
             {
                 var refreshed = await _checkoutService.GetCheckoutViewAsync(UserId);
